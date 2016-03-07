@@ -3,6 +3,22 @@
 <style>
 
 /* CSS goes here. */
+.subunit.SCT { fill: #ddc; }
+.subunit.WLS { fill: #cdd; }
+.subunit.NIR { fill: #cdc; }
+.subunit.ENG { fill: #dcd; }
+.subunit.IRL { display: none; }
+
+.subunit-boundary {
+  fill: none;
+  stroke: #777;
+  stroke-dasharray: 2,2;
+  stroke-linejoin: round;
+}
+
+.subunit-boundary.IRL {
+  stroke: #aaa;
+}
 
 </style>
 <body>
@@ -33,13 +49,24 @@ d3.json("uk.json", function(error, uk) {
         .parallels([50, 60])
         .scale(6000)
         .translate([width / 2, height / 2]);
-        
+
     var path = d3.geo.path()
         .projection(projection);
 
+    svg.selectAll(".subunit")
+        .data(subunits.features)
+        .enter().append("path")
+            .attr("class", function(d) { return "subunit " + d.id })
+            .attr("d", path);
+
     svg.append("path")
-        .datum(subunits)
-        .attr("d", path);
+        .datum(topojson.mesh(uk, uk.objects.subunits, function(a,b) {return a!== b && a.id !== 'IRL';}))
+        .attr("d", path)
+        .attr("class", "subunit-boundary")
+    svg.append("path")
+        .datum(topojson.mesh(uk, uk.objects.subunits, function(a,b) {return a=== b && a.id === 'IRL';}))
+        .attr("d", path)
+        .attr("class", "subunit-boundary IRL")
 });
 
 </script>
